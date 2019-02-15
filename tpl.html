@@ -1,0 +1,26 @@
+{{ uri }}</h1>
+<table id="list">
+  <thead>
+    <tr>
+      <th style="width:55%">File Name</th>
+      <th style="width:20%">File Size</th>
+      <th style="width:25%">Date</th></tr>
+  </thead>
+  <tbody>
+    {%-if uri != '/' %}<tr><td><a href="../">Parent directory/</a></td><td>-</td><td>-</td></tr>{%-endif %}
+{% for f in folders %}
+    <tr>
+        <td><a href="{{ f.name }}/" title="{{ f.name }}">{{ f.name }}/</a></td>
+        <td>{%- if f.size is none %}-{%- else %}{{ f.size|filesizeformat }}{%- endif %}</td>
+        <td>{%- if f.date %}{{ f.date }}{%-endif %}</td>
+    </tr>
+{% endfor %}
+{% for f in files %}
+    <tr>
+        <td><a href="{{ f.name }}" title="{{ f.name }}">{{ f.name }}</a></td>
+        <td>{{ f.size|filesizeformat }}</td>
+        <td>{{ f.date }}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>

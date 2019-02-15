@@ -1,0 +1,31 @@
+bucket=some.mycoolbucket.com
+prefix=/
+exclude="index.html|404.html|favicon.ico|*.bak"
+theme=fancyindex.TheInsomniac
+key=key.json
+out=_build/html
+
+all:
+	@echo "what do you want to do today?"
+
+index:
+	@python3 gcs-indexer.py -x $(exclude) -E -r $(bucket) -p $(prefix) -k $(key)
+
+html:
+	python3 gcs-indexer.py -x $(exclude) -E -r $(bucket) -p $(prefix) -k $(key) | \
+	   	python3 fancyindex-generator.py -F $(theme) -D $(out)
+
+clean:
+	rm -rf $(out)/*
+
+upload-gcs:
+	./gcs-index-upload.sh $(bucket)
+
+pub: clean html upload-gcs
+
+install-modules:
+	pip3 install jinja2 argparse google.cloud.storage
+
+test:
+	docker-compose up -d
+

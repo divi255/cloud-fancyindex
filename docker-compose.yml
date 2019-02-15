@@ -1,0 +1,8 @@
+version: '3'
+services:
+  localweb:
+    image: nginx
+    volumes:
+        - ./_build/html:/usr/share/nginx/html
+    ports:
+      - "80:80"
