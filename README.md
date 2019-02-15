@@ -16,7 +16,8 @@ Of course you can make an application which gets bucket contents and displays
 to to user in a nice way. But for what, if the files are static? Let's build
 static indexes! And let's add fancyindex themes for them!
 
-#####Security:
+Security
+--------
 
 * To upload files, you need to be logged in with local *gcloud* installation.
   gcs-index-upload.sh actually calls *gcloud rsync*
@@ -27,7 +28,8 @@ static indexes! And let's add fancyindex themes for them!
   GOOGLE_APPLICATION_CREDENTIALS env variable or specify it in application
   command line params.
 
-#####Instaiiation:
+Instaiiation
+------------
 
 * Copy Makefile.default to Makefile and feel free to edit it. Set bucket,
   prefix, and etc.
@@ -35,7 +37,8 @@ static indexes! And let's add fancyindex themes for them!
 * Mods required: jinja2, argparse, google.cloud.storage. Install them or just
   run *make install-modules*
 
-#####Usage:
+Usage
+-----
 
 * gcs-indexer.py - indexes bucket and creates JSON file (by default - prints
   everyting to stdout). To start, specify at least key file and bucket name.
@@ -68,7 +71,8 @@ With make:
 Note: you need to rebuild index (at least partial one) everytime you upload new
 file to bucket. Sad, but true.
 
-#####Nuts and bolts:
+Nuts and bolts
+--------------
 
 * Unfortunately it's impossible to implement sorting, as it called a server
   request with a query string only NGINX can understand. Maybe I'll do sotring
@@ -78,7 +82,8 @@ file to bucket. Sad, but true.
 * As buckets don't have real folders, sometimes it can't get a proper
   modification date or calculate folder size. Sorry for that.
 
-#####TODO:
+TODO
+----
 
-If some need it, I can quickly add AWS indexer. Don't need it bacause we work
-with GCS only.
+* If someone need it, I can quickly add AWS indexer. Don't need it bacause we
+  work with GCS only.
