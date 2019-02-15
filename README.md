@@ -9,7 +9,7 @@ with a few directives in webserver config.
 But future is coming and we are moving to cloud storages.
 
 * Pros: you'll have built-in scalability, speed, and multi-zones for your files.
-* Cons: these cloud buckets have no indexes (or or don't look so cool as old
+* Cons: these cloud buckets have no indexes (or they don't look so cool as old
   good NGINX fancyindex themes).
 
 Of course you can make an application which gets bucket contents and displays
