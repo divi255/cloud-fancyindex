@@ -68,7 +68,7 @@ With make:
 
 * make pub - generate, make, upload to GCS
 
-Note: you need to rebuild index (at least partial one) everytime you upload new
+Note: you need to rebuild index (at least partial one) every time you upload new
 file to bucket. Sad, but true.
 
 Nuts and bolts
