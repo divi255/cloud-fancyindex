@@ -9,8 +9,8 @@ with a few directives in webserver config.
 But future is coming and we are moving to cloud storages.
 
 * Pros: you'll have built-in scalability, speed, and multi-zones for your files.
-* Cons: these cloud buckets have no indexes (or don't look so cool as old good
-  NGINX fancyindex themes).
+* Cons: these cloud buckets have no indexes (or or don't look so cool as old
+  good NGINX fancyindex themes).
 
 Of course you can make an application which gets bucket contents and displays
 to to user in a nice way. But for what, if the files are static? Let's build
@@ -42,9 +42,9 @@ Usage
 
 * gcs-indexer.py - indexes bucket and creates JSON file (by default - prints
   everyting to stdout). To start, specify at least key file and bucket name.
-  Note: option "-r" will index bucket recursively, but because bucket objects are
-  not real files and folders, actually API always returns all objects below the
-  given prefix. You just can choose include them to index or not.
+  Note: option "-r" will index bucket recursively, but because bucket objects
+  are not real files and folders, actually API always returns all objects below
+  the given prefix. You just can choose include them to index or not.
 
 * fancyindex-generator.py - generates index.html files (by default - in
   _build/html). One theme is already included (created by [TheInsomniac] -
