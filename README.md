@@ -78,7 +78,7 @@ E.g. you have a cool build script which makes your project tarball and uploads
 it to */releases/${VERSION}/blahblahblah* path into cloud bucket. To re-index
 the path, put the following string in your script after upload command:
 
-    *cd /path/to/cloud-fancyindex && make prefix=/releases/${VERSION} pub*
+    cd /path/to/cloud-fancyindex && make prefix=/releases/${VERSION} pub
 
 Nuts and bolts
 --------------
