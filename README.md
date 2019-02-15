@@ -75,7 +75,7 @@ Nuts and bolts
 --------------
 
 * Unfortunately it's impossible to implement sorting, as it called a server
-  request with a query string only NGINX can understand. Maybe I'll do sotring
+  request with a query string only NGINX can understand. Maybe I'll do sorting
   with JS, some day.
 * But a bonus - now you can easily display sizes of folders (or directories (or
   bucket paths (etc)))
