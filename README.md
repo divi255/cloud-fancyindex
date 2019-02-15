@@ -24,7 +24,7 @@ Security
 
 * To let the software index your bucket, you need to create GCP servece account
   (permissions worked for me: Storage Legacy Bucket Reader & Storage Object
-  Viewer) and the create a key for it. Put a path to keyfile to
+  Viewer) and then create a key for it. Put a path to keyfile to
   GOOGLE_APPLICATION_CREDENTIALS env variable or specify it in application
   command line params.
 
