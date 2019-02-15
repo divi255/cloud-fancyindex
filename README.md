@@ -95,5 +95,5 @@ TODO
 ----
 
 * If someone need it, I can quickly add AWS indexer for Amazon S3/Ditigal Ocean
-  Spaces and compatibe. Don't need it bacause we work with Google Cloud Storage
-  only.
+  Spaces and compatible. Personally I don't need this bacause we work with
+  Google Cloud Storage only.
