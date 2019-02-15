@@ -92,9 +92,9 @@ structure = {}
 folder_info = {}
 
 
-def append_file(name, size, d=None, folder='', update_date_only=False):
+def append_file(name, size, d=None, folder='', update_info_only=False):
     key = (('/' + prefix + ('/' if folder else '')) if prefix else '/') + folder
-    if not update_date_only:
+    if not update_info_only:
         structure.setdefault(key, []).append({
             'is_dir':
             False,
@@ -176,7 +176,7 @@ for o in objects:
                 o.size,
                 o.updated,
                 '/'.join(n[:-1]),
-                update_date_only=True)
+                update_info_only=True)
             continue
         append_folder(foldername)
         append_file(n[-1], o.size, o.updated, '/'.join(n[:-1]))
