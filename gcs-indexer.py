@@ -55,7 +55,7 @@ ap.add_argument(
 
 ap.add_argument(
     '-P',
-    '--pretty_print',
+    '--pretty-print',
     help='Print pretty JSON (default: no formatting)',
     action='store_true',
     dest='pretty_print')
