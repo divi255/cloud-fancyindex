@@ -28,7 +28,7 @@ Security
   GOOGLE_APPLICATION_CREDENTIALS env variable or specify it in application
   command line params.
 
-Instaiiation
+Installation
 ------------
 
 * Copy Makefile.default to Makefile and feel free to edit it. Set bucket,
