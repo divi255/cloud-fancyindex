@@ -16,11 +16,16 @@ Of course you can make an application which gets bucket contents and displays
 to to user in a nice way. But for what, if the files are static? Let's build
 static indexes! And let's add fancyindex themes for them!
 
+Uploading
+---------
+
+* To upload files to Google Clound Storage, you need to be logged in with local
+  *gcloud* app. cs-index-upload.sh actually calls *gsutil rsync*
+
+* To upload to Amazon S3 or compatible, install and configure *s3cmd*
+
 Security
 --------
-
-* To upload files, you need to be logged in with local *gcloud* installation.
-  gcs-index-upload.sh actually calls *gcloud rsync*
 
 * To let the software index your bucket, you need to create GCP servece account
   (permissions worked for me: Storage Legacy Bucket Reader & Storage Object
@@ -28,19 +33,38 @@ Security
   GOOGLE_APPLICATION_CREDENTIALS env variable or specify it in application
   command line params.
 
+* For Amazon S3 JSON key is also required. Amazon doesn't supply JSON keys,
+  create it manually:
+
+    {
+        "aws_access_key_id": "KEYID",
+        "aws_secret_access_key": "SECRETKEY"
+    }
+
+* Additionally, for S3 you can specify in JSON fields *region_name* and
+  *endpoint_url*, e.g. to connect to Digital Ocean Spaces:
+
+    {
+        "aws_access_key_id": "KEYID",
+        "aws_secret_access_key": "SECRETKEY",
+        "region_name": "nyc3",
+        "endpoint_url": "https://nyc3.digitaloceanspaces.com"
+    }
+
 Installation
 ------------
 
 * Copy Makefile.default to Makefile and feel free to edit it. Set bucket,
-  prefix, and etc.
+  prefix, cloud storage (*cs=gcs* for Google (default), *cs=s3* for Amazon S3)
+  and etc.
 
-* Mods required: jinja2, argparse, google.cloud.storage. Install them or just
-  run *make install-modules*
+* Mods required: jinja2, argparse, google.cloud.storage (for GCS), boto3
+  (for S3). Install them or just run *sudo make install-modules*
 
 Usage
 -----
 
-* gcs-indexer.py - indexes bucket and creates JSON file (by default - prints
+* cs-indexer.py - indexes bucket and creates JSON file (by default - prints
   everyting to stdout). To start, specify at least key file and bucket name.
   Note: option "-r" will index bucket recursively, but because bucket objects
   are not real files and folders, actually API always returns all objects below
@@ -51,7 +75,7 @@ Usage
   https://github.com/TheInsomniac/Nginx-Fancyindex-Theme). Actually it's
   compatible with almost all themes you can find or create.
 
-* gcs-index-upload.sh - uploads _build/html to GCS
+* cs-index-upload.sh - uploads output directory to cloud storage
 
 * tpl.html - template file for the primary table.
 
@@ -66,7 +90,7 @@ With make:
 
 * make html - generate JSON index and then make html files from it
 
-* make pub - generate, make, upload to GCS
+* make pub - generate, make, upload to Cloud
 
 Note: you need to rebuild index (at least partial one) every time you upload new
 file to bucket. Sad, but true.
@@ -86,14 +110,19 @@ Nuts and bolts
 * Unfortunately it's impossible to implement sorting, as it called a server
   request with a query string only NGINX can understand. Maybe I'll do sorting
   with JS, some day.
+
 * But a bonus - now you can easily display sizes of folders (or directories (or
   bucket paths (etc)))
+
 * As buckets don't have real folders, sometimes it can't get a proper
   modification date or calculate folder size. Sorry for that.
+
+* S3 actually has real "folders" (at least emulates them), so index generation
+  can be more optimal. But then we'll lose unification.
+
 
 TODO
 ----
 
-* If someone need it, I can quickly add AWS indexer for Amazon S3/Digital Ocean
-  Spaces and compatible. Personally I don't need this bacause we work with
-  Google Cloud Storage only.
+* Working with Digital Ocean Spaces is untested. Will test it some time later.
+

@@ -1,17 +1,33 @@
 #!/usr/bin/env python3
 
-_me = 'Google Cloud Storage indexer'
+_me = 'Cloud Storage indexer'
 
 import os
 import fnmatch
 import json
 import argparse
 
-from google.cloud import storage
+object_field_map = {
+    'gcs': {
+        'name': 'name',
+        'date': 'updated',
+        'size': 'size'
+    },
+    's3': {
+        'name': 'Key',
+        'date': 'LastModified',
+        'size': 'Size'
+    }
+}
+
+
+class GenericStorageObject:
+    pass
+
 
 ap = argparse.ArgumentParser(description=_me)
 
-ap.add_argument('bucket', help='GCS bucket to index', metavar='BUCKET')
+ap.add_argument('bucket', help='bucket to index', metavar='BUCKET')
 
 ap.add_argument(
     '-p',
@@ -25,11 +41,22 @@ ap.add_argument(
     '-k',
     '--key-file',
     help=
-    'Get GCS key from file ' + \
-        '(default: from GOOGLE_APPLICATION_CREDENTIALS environment variable)',
+    'Get CS key from file ' + \
+        '(default for gcs: from GOOGLE_APPLICATION_CREDENTIALS ' + \
+        'environment variable)',
     metavar='FILE',
     default=None,
     dest='keyfile')
+
+ap.add_argument(
+    '-s',
+    '--cloud-storage',
+    help='Cloud storage type: gcs for Google, ' + \
+            's3 for Amazon S3 and compatible (default: gcs)',
+    metavar='TYPE',
+    choices = ['gcs', 's3'],
+    default='gcs',
+    dest='cloud_storage')
 
 ap.add_argument(
     '-r',
@@ -78,8 +105,7 @@ recursive = a.recursive
 pretty_print = a.pretty_print
 time_format = a.time_format
 bucket = a.bucket
-if a.keyfile:
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = a.keyfile
+cloud_storage = a.cloud_storage
 # end to params
 
 if prefix.endswith('/'):
@@ -148,12 +174,45 @@ def update_folder_info(folder, d, size):
             break
 
 
-client = storage.Client()
+if cloud_storage == 'gcs':
+    if a.keyfile:
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = a.keyfile
+    from google.cloud import storage
 
-bucket = client.get_bucket(bucket)
-objects = bucket.list_blobs(prefix=prefix)
+    client = storage.Client()
 
-for o in objects:
+    bucket = client.get_bucket(bucket)
+    objects = bucket.list_blobs(prefix=prefix)
+elif cloud_storage == 's3':
+    import boto3
+    key = json.load(open(a.keyfile))
+    session = boto3.session.Session()
+    client = session.client(
+        's3',
+        region_name=key.get('region_name'),
+        endpoint_url=key.get('endpoint_url'),
+        aws_access_key_id=key['aws_access_key_id'],
+        aws_secret_access_key=key['aws_secret_access_key'])
+    objects = client.list_objects(Bucket=bucket, Prefix=prefix)['Contents']
+else:
+    print('cloud storage type unknown: ' + cloud_storage)
+    exit(2)
+
+
+def format_object(o, cs):
+    out = GenericStorageObject()
+    for k, v in object_field_map[cs].items():
+        if isinstance(o, dict):
+            value = o[v]
+        else:
+            value = getattr(o, v)
+        setattr(out, k, value)
+    return out
+
+
+for obj in objects:
+    o = format_object(obj, cloud_storage)
+    if o.name.endswith('/'): continue
     n = o.name[len(prefix) + 1 if prefix else 0:].split('/')
     if exclude_fancyindex and not prefix and n[0] == 'fancyindex':
         continue
@@ -165,21 +224,17 @@ for o in objects:
     if skip: continue
     if len(n) == 1:
         # we have a file in root
-        append_file(n[-1], o.size, o.time_created)
+        append_file(n[-1], o.size, o.date)
     else:
         # we have a file in a "folder"
         foldername = '/'.join(n[:-1])
         if not recursive and prefix != foldername:
             append_folder(n[0])
             append_file(
-                n[-1],
-                o.size,
-                o.updated,
-                '/'.join(n[:-1]),
-                update_info_only=True)
+                n[-1], o.size, o.date, '/'.join(n[:-1]), update_info_only=True)
             continue
         append_folder(foldername)
-        append_file(n[-1], o.size, o.updated, '/'.join(n[:-1]))
+        append_file(n[-1], o.size, o.date, '/'.join(n[:-1]))
 
 if pretty_print:
     print(json.dumps(structure, indent=4, sort_keys=True))
