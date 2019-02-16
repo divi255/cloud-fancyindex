@@ -94,6 +94,6 @@ Nuts and bolts
 TODO
 ----
 
-* If someone need it, I can quickly add AWS indexer for Amazon S3/Ditigal Ocean
+* If someone need it, I can quickly add AWS indexer for Amazon S3/Digital Ocean
   Spaces and compatible. Personally I don't need this bacause we work with
   Google Cloud Storage only.
