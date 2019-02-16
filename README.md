@@ -50,6 +50,8 @@ Security
         "region_name": "nyc3",
         "endpoint_url": "https://nyc3.digitaloceanspaces.com"
     }
+    
+* Don't forget to set 600 permission on all key files you have.
 
 Installation
 ------------
