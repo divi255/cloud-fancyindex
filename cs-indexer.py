@@ -20,6 +20,9 @@ object_field_map = {
     }
 }
 
+checksum_files = {'md5sums': 'md5', 'sha1sums': 'sha1', 'sha256sums': 'sha256'}
+checksums = ['md5', 'sha1', 'sha256']
+
 
 class GenericStorageObject:
     pass
@@ -74,6 +77,12 @@ ap.add_argument(
     dest='exclude')
 
 ap.add_argument(
+    '-c',
+    help='Get checksums from md5sums, sha1sums and sha256sums',
+    action='store_true',
+    dest='checksums')
+
+ap.add_argument(
     '-E',
     '--exclude-fancyindex',
     help='Exclude /fancyindex directory',
@@ -106,6 +115,10 @@ pretty_print = a.pretty_print
 time_format = a.time_format
 bucket = a.bucket
 cloud_storage = a.cloud_storage
+get_checksums = a.checksums
+if get_checksums:
+    import re
+    css_reg = re.compile('[\ \t]+')
 # end to params
 
 if prefix.endswith('/'):
@@ -118,18 +131,57 @@ structure = {}
 folder_info = {}
 
 
+def get_blob(o):
+    if cloud_storage == 'gcs':
+        return o.download_as_string().decode()
+    elif cloud_storage == 's3':
+        return client.get_object(
+            Key=o['Key'], Bucket=bucket)['Body'].read().decode()
+    else:
+        return None
+
+
+def apply_checksum_file(o, filename, foldername, ctype):
+    key = ('/' + prefix if prefix else '/') + foldername
+    sfile = get_blob(o)
+    if not sfile: return
+    sums = {}
+    for l in (sfile.split('\n')):
+        if l:
+            try:
+                s, f = re.split(css_reg, l.strip())
+                sums[f] = s
+                # update files if we already have any
+                if key in structure:
+                    l = structure.get(key)
+                    for x in l:
+                        if x['name'] == f:
+                            x['checksum_' + ctype] = s
+            except:
+                raise Exception('Parse error {}'.format(filename))
+    folder_info.setdefault(key, {})[ctype] = sums
+
+
 def append_file(name, size, d=None, folder='', update_info_only=False):
     key = (('/' + prefix + ('/' if folder else '')) if prefix else '/') + folder
     if not update_info_only:
-        structure.setdefault(key, []).append({
-            'is_dir':
-            False,
-            'name':
-            name,
-            'size':
-            size,
+        file_info = {
+            'is_dir': False,
+            'name': name,
+            'size': size,
             'date': (d.strftime(time_format) if d else None)
-        })
+        }
+        if get_checksums:
+            for c in checksums:
+                file_info['checksum_' + c] = None
+            i = folder_info.get(key)
+            if i:
+                for c in checksums:
+                    sums = i.get(c)
+                    if sums:
+                        file_info['checksum_' + c] = sums.get(name)
+
+        structure.setdefault(key, []).append(file_info)
     if d and key != '/': update_folder_info(key, d, size)
 
 
@@ -159,7 +211,12 @@ def update_folder_info(folder, d, size):
     if folder not in folder_info:
         folder_info[folder] = {'d': d, 's': size}
     else:
-        folder_info[folder]['s'] += size
+        if 's' not in folder_info[folder]:
+            folder_info[folder]['s'] = size
+        else:
+            folder_info[folder]['s'] += size
+        if 'd' not in folder_info[folder]:
+            folder_info[folder]['d'] = d
     n = folder.split('/')
     key = '/'.join(n[:-1])
     if not key: key = '/'
@@ -193,7 +250,11 @@ elif cloud_storage == 's3':
         endpoint_url=key.get('endpoint_url'),
         aws_access_key_id=key['aws_access_key_id'],
         aws_secret_access_key=key['aws_secret_access_key'])
-    objects = client.list_objects(Bucket=bucket, Prefix=prefix)['Contents']
+    try:
+        objects = client.list_objects(Bucket=bucket, Prefix=prefix)['Contents']
+    except KeyError:
+        # empty bucket
+        objects = []
 else:
     print('cloud storage type unknown: ' + cloud_storage)
     exit(2)
@@ -217,6 +278,10 @@ for obj in objects:
     if exclude_fancyindex and not prefix and n[0] == 'fancyindex':
         continue
     skip = False
+    if get_checksums and n[-1].lower() in checksum_files:
+        foldername = '/'.join(n[:-1])
+        apply_checksum_file(obj, o.name, foldername,
+                            checksum_files[n[-1].lower()])
     for x in exclude:
         if fnmatch.fnmatch(n[-1], x):
             skip = True

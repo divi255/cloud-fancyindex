@@ -77,9 +77,13 @@ Usage
   https://github.com/TheInsomniac/Nginx-Fancyindex-Theme). Actually it's
   compatible with almost all themes you can find or create.
 
+
 * cs-index-upload.sh - uploads output directory to cloud storage
 
-* tpl.html - template file for the primary table.
+* tpl.html - template file for the primary table. This is jinja2 template so
+  you can use all functions it has.
+
+* sha256.tpl.html - template example with sha256 checksum.
 
 * docker-compose.yml - just a test stuff, ignore it
 
@@ -96,6 +100,12 @@ With make:
 
 Note: you need to rebuild index (at least partial one) every time you upload new
 file to bucket. Sad, but true.
+
+If option "-c" is given to indexer (as in Makefile.default), additional file
+parameters "checksum_md5", "checksum_sha1" and "checksum_sha256" appear.
+Indexer will update them if files "md5sums", "sha1sums" or "sha256sums" (case
+doesn't matter) are present in current directory. File format is standard:
+"CHECKSUM  FILENAME" (one per line).
 
 Usage in real life
 ------------------

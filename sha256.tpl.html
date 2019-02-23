@@ -1,0 +1,29 @@
+{{ uri }}</h1>
+<table id="list">
+  <thead>
+    <tr>
+      <th style="width:35%">File Name</th>
+      <th style="width:10%">File Size</th>
+      <th style="width:18%">Date</th>
+      <th style="width:37%">SHA256</th></tr>
+  </thead>
+  <tbody>
+    {%-if uri != '/' %}<tr><td><a href="../">Parent directory/</a></td><td>-</td><td>-</td></tr>{%- else %}<tr></tr>{%-endif %}
+{% for f in folders %}
+    <tr>
+        <td><a href="{{ f.name }}/" title="{{ f.name }}">{{ f.name }}/</a></td>
+        <td>{%- if f.size is none %}-{%- else %}{{ f.size|filesizeformat }}{%- endif %}</td>
+        <td>{%- if f.date is none %}-{%- else %}{{ f.date }}{%- endif %}</td>
+        <td>-</td>
+    </tr>
+{% endfor %}
+{% for f in files %}
+    <tr>
+        <td><a href="{{ f.name }}" title="{{ f.name }}">{{ f.name }}</a></td>
+        <td>{{ f.size|filesizeformat }}</td>
+        <td>{{ f.date }}</td>
+        <td>{%- if f.checksum_sha256 is none %}-{%- else %}{{ f.checksum_sha256|truncate(40) }}{%- endif %}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
