@@ -168,7 +168,7 @@ def get_blob(o):
         return None
 
 
-def apply_checksum_file(o, filename, foldername, ctype):
+def apply_metainfo_file(o, filename, foldername, ctype):
     key = ('/' + prefix if prefix else '/') + foldername
     sfile = get_blob(o)
     if not sfile: return
@@ -307,7 +307,7 @@ for obj in objects:
     skip = False
     if metainfo and n[-1].lower() in metainfo_files:
         foldername = '/'.join(n[:-1])
-        apply_checksum_file(obj, o.name, foldername,
+        apply_metainfo_file(obj, o.name, foldername,
                             metainfo_files[n[-1].lower()])
     for x in exclude:
         if fnmatch.fnmatch(n[-1], x):
