@@ -78,6 +78,7 @@ ap.add_argument(
 
 ap.add_argument(
     '-c',
+    '--checksums',
     help='Get checksums from md5sums, sha1sums and sha256sums',
     action='store_true',
     dest='checksums')
