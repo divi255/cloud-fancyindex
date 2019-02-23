@@ -22,7 +22,7 @@
         <td><a href="{{ f.name }}" title="{{ f.name }}">{{ f.name }}</a></td>
         <td>{{ f.size|filesizeformat }}</td>
         <td>{{ f.date }}</td>
-        <td>{%- if f.checksum_sha256 is none %}-{%- else %}{{ f.checksum_sha256|truncate(40) }}{%- endif %}</td>
+        <td>{%- if f.sha256 is none %}-{%- else %}{{ f.sha256|truncate(40) }}{%- endif %}</td>
     </tr>
 {% endfor %}
   </tbody>

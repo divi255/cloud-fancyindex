@@ -157,7 +157,7 @@ def apply_checksum_file(o, filename, foldername, ctype):
                     l = structure.get(key)
                     for x in l:
                         if x['name'] == f:
-                            x['checksum_' + ctype] = s
+                            x[ctype] = s
             except:
                 raise Exception('Parse error {}'.format(filename))
     folder_info.setdefault(key, {})[ctype] = sums
@@ -174,13 +174,13 @@ def append_file(name, size, d=None, folder='', update_info_only=False):
         }
         if get_checksums:
             for c in checksums:
-                file_info['checksum_' + c] = None
+                file_info[c] = None
             i = folder_info.get(key)
             if i:
                 for c in checksums:
                     sums = i.get(c)
                     if sums:
-                        file_info['checksum_' + c] = sums.get(name)
+                        file_info[c] = sums.get(name)
 
         structure.setdefault(key, []).append(file_info)
     if d and key != '/': update_folder_info(key, d, size)
