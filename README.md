@@ -116,7 +116,7 @@ and "sha256" appear. Indexer will update them if files "md5sums", "sha1sums" or
 format is standard: "CHECKSUM  FILENAME" (one per line). This option is
 actually equal to
 
-    ./cs-indexer.py ..... "-M sha256sums:sha256 -M md5sums:md5 -M sha1sums:sha1"
+    ./cs-indexer.py ..... -M sha256sums:sha256 -M md5sums:md5 -M sha1sums:sha1
 
 Usage in real life
 ------------------
