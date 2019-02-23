@@ -102,7 +102,7 @@ Note: you need to rebuild index (at least partial one) every time you upload new
 file to bucket. Sad, but true.
 
 If option "-c" is given to indexer (as in Makefile.default), additional file
-parameters "checksum_md5", "checksum_sha1" and "checksum_sha256" appear.
+attributes "checksum_md5", "checksum_sha1" and "checksum_sha256" appear.
 Indexer will update them if files "md5sums", "sha1sums" or "sha256sums" (case
 doesn't matter) are present in current directory. File format is standard:
 "CHECKSUM  FILENAME" (one per line).
