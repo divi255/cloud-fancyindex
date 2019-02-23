@@ -103,11 +103,20 @@ With make:
 Note: you need to rebuild index (at least partial one) every time you upload new
 file to bucket. Sad, but true.
 
+Option "-M" allows to include custom meta info, e.g. you can display
+fingerprints of SSL certificates hosted in bucket and this data is stored (as
+"FINGERPRINT FILENAME", one per line) in "FINGERPRINTS" (case insensitive)
+file:
+
+    ./cs-indexer.py ..... -M FINGERPRINTS:fingerprint <BUCKET>
+
 If option "-c" is given to indexer (as in Makefile.default), additional file
 attributes "md5", "sha1" and "sha256" appear. Indexer will update them if files
 "md5sums", "sha1sums" or "sha256sums" (case doesn't matter) are present in
 current directory. File format is standard: "CHECKSUM  FILENAME" (one per
-line).
+line). This option is actually equal to
+
+    ./cs-indexer.py ..... "-M sha256sums:sha256 -M md5sums:md5 -M sha1sums:sha1"
 
 Usage in real life
 ------------------

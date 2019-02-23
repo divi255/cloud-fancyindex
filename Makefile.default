@@ -6,16 +6,18 @@ key=key.json
 out=_build/html
 cs=gcs
 tpl=tpl.html
+index_opts=
 
 all:
 	@echo "what do you want to do today?"
 
 index:
-	@python3 cs-indexer.py -s ${cs} -x $(exclude) -E -r -c $(bucket) -p $(prefix) -k $(key)
+	@python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r -c $(bucket) \
+  	 	-p $(prefix) -k $(key)
 
 html:
-	python3 cs-indexer.py -s ${cs} -x $(exclude) -E -r -c $(bucket) -p $(prefix) -k $(key) | \
-	   	python3 fancyindex-generator.py -t $(tpl) -F $(theme) -D $(out)
+	python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r -c $(bucket) \
+  	 	-p $(prefix) -k $(key) | python3 fancyindex-generator.py -t $(tpl) -F $(theme) -D $(out)
 
 clean:
 	rm -rf $(out)/*

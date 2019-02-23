@@ -20,9 +20,6 @@ object_field_map = {
     }
 }
 
-checksum_files = {'md5sums': 'md5', 'sha1sums': 'sha1', 'sha256sums': 'sha256'}
-checksums = ['md5', 'sha1', 'sha256']
-
 
 class GenericStorageObject:
     pass
@@ -84,6 +81,14 @@ ap.add_argument(
     dest='checksums')
 
 ap.add_argument(
+    '-M',
+    '--metainfo',
+    help='Additional "<info>  <file>" files, e.g. SSL certs fingerprints etc.',
+    dest='metainfo',
+    action='append',
+    metavar='FILE:field')
+
+ap.add_argument(
     '-E',
     '--exclude-fancyindex',
     help='Exclude /fancyindex directory',
@@ -107,6 +112,9 @@ ap.add_argument(
 
 a = ap.parse_args()
 
+metainfo = []
+metainfo_files = {}
+
 # to cli params
 exclude = a.exclude.split('|')
 exclude_fancyindex = a.exclude_fancyindex
@@ -118,9 +126,28 @@ bucket = a.bucket
 cloud_storage = a.cloud_storage
 get_checksums = a.checksums
 if get_checksums:
+    metainfo = True
+    metainfo_files = {
+        'md5sums': 'md5',
+        'sha1sums': 'sha1',
+        'sha256sums': 'sha256'
+    }
+    metainfo = ['md5', 'sha1', 'sha256']
+
+if (a.metainfo):
+    for p in a.metainfo:
+        f, i = p.split(':')
+        f = f.lower()
+        if i not in metainfo:
+            metainfo.append(i)
+            if f in metainfo_files:
+                metainfo.remove(metainfo_files[f])
+            metainfo_files[f] = i
+# end to params
+
+if metainfo:
     import re
     css_reg = re.compile('[\ \t]+')
-# end to params
 
 if prefix.endswith('/'):
     prefix = prefix[:-1]
@@ -172,12 +199,12 @@ def append_file(name, size, d=None, folder='', update_info_only=False):
             'size': size,
             'date': (d.strftime(time_format) if d else None)
         }
-        if get_checksums:
-            for c in checksums:
+        if metainfo:
+            for c in metainfo:
                 file_info[c] = None
             i = folder_info.get(key)
             if i:
-                for c in checksums:
+                for c in metainfo:
                     sums = i.get(c)
                     if sums:
                         file_info[c] = sums.get(name)
@@ -279,10 +306,10 @@ for obj in objects:
     if exclude_fancyindex and not prefix and n[0] == 'fancyindex':
         continue
     skip = False
-    if get_checksums and n[-1].lower() in checksum_files:
+    if metainfo and n[-1].lower() in metainfo_files:
         foldername = '/'.join(n[:-1])
         apply_checksum_file(obj, o.name, foldername,
-                            checksum_files[n[-1].lower()])
+                            metainfo_files[n[-1].lower()])
     for x in exclude:
         if fnmatch.fnmatch(n[-1], x):
             skip = True
