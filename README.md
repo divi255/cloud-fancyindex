@@ -83,7 +83,7 @@ Usage
 * tpl.html - template file for the primary table. This is jinja2 template so
   you can use all functions it has.
 
-* sha256.tpl.html - template example with sha256 checksum.
+* sha256.tpl.html - template example with sha256 checksums.
 
 * docker-compose.yml - just a test stuff, ignore it
 
