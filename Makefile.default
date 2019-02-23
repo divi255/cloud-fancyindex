@@ -11,7 +11,7 @@ all:
 	@echo "what do you want to do today?"
 
 index:
-	@python3 cs-indexer.py -s ${cs} -x $(exclude) -E -r -c $(bucket) -p $(prefix) -k $(key)
+	python3 cs-indexer.py -s ${cs} -x $(exclude) -E -r -c $(bucket) -p $(prefix) -k $(key)
 
 html:
 	python3 cs-indexer.py -s ${cs} -x $(exclude) -E -r -c $(bucket) -p $(prefix) -k $(key) | \
