@@ -104,7 +104,7 @@ Note: you need to rebuild index (at least partial one) every time you upload new
 file to bucket. Sad, but true.
 
 Option "-M" allows to include custom meta info, e.g. you can display
-fingerprints of SSL certificates hosted in bucket and this data is stored (as
+fingerprints of SSL certificates hosted in bucket if this data is stored (as
 "FINGERPRINT FILENAME", one per line) in "FINGERPRINTS" (case insensitive)
 file:
 
