@@ -110,11 +110,11 @@ file:
 
     ./cs-indexer.py ..... -M FINGERPRINTS:fingerprint <BUCKET>
 
-If option "-c" is given to indexer (as in Makefile.default), additional file
-attributes "md5", "sha1" and "sha256" appear. Indexer will update them if files
-"md5sums", "sha1sums" or "sha256sums" (case doesn't matter) are present in
-current directory. File format is standard: "CHECKSUM  FILENAME" (one per
-line). This option is actually equal to
+If option "-c" is given to indexer, additional file attributes "md5", "sha1"
+and "sha256" appear. Indexer will update them if files "md5sums", "sha1sums" or
+"sha256sums" (case doesn't matter) are present in current directory. File
+format is standard: "CHECKSUM  FILENAME" (one per line). This option is
+actually equal to
 
     ./cs-indexer.py ..... "-M sha256sums:sha256 -M md5sums:md5 -M sha1sums:sha1"
 

@@ -12,11 +12,11 @@ all:
 	@echo "what do you want to do today?"
 
 index:
-	@python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r -c $(bucket) \
+	@python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r $(bucket) \
   	 	-p $(prefix) -k $(key)
 
 html:
-	python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r -c $(bucket) \
+	python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r $(bucket) \
   	 	-p $(prefix) -k $(key) | python3 fancyindex-generator.py -t $(tpl) -F $(theme) -D $(out)
 
 clean:
