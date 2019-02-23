@@ -77,6 +77,8 @@ Usage
   https://github.com/TheInsomniac/Nginx-Fancyindex-Theme). Actually it's
   compatible with almost all themes you can find or create.
 
+Note: theme is placed in /fancyindex directory. In case theme loads any stuff
+(css/js etc.) from other directory, correct paths in its header / footer.
 
 * cs-index-upload.sh - uploads output directory to cloud storage
 
