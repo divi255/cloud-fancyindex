@@ -56,8 +56,7 @@ structure = json.load(input_file)
 header_html = open(fancyindex_theme + '/header.html').read()
 footer_html = open(fancyindex_theme + '/footer.html').read()
 
-with open(template_file) as f:
-    template = Template(f.read())
+template = Template(open(template_file).read())
 
 for f, s in structure.items():
     output_folder = html_folder + (f if f != '/' else '')
