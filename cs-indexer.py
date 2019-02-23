@@ -126,7 +126,6 @@ bucket = a.bucket
 cloud_storage = a.cloud_storage
 get_checksums = a.checksums
 if get_checksums:
-    metainfo = True
     metainfo_files = {
         'md5sums': 'md5',
         'sha1sums': 'sha1',
