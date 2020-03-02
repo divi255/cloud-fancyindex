@@ -11,7 +11,7 @@ all:
 	@echo "what do you want to do today?"
 
 index:
-	cloud-index ${index_opts} -s ${cs} -r $(bucket) \
+	@cloud-index ${index_opts} -s ${cs} -r $(bucket) \
   	 	-p $(prefix) -k $(key)
 
 html:
