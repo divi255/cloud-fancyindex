@@ -7,6 +7,8 @@ import fnmatch
 import json
 import argparse
 
+from pyaltt2.converters import parse_date
+
 object_field_map = {
     'gcs': {
         'name': 'name',
@@ -29,13 +31,12 @@ ap = argparse.ArgumentParser(description=_me)
 
 ap.add_argument('bucket', help='bucket to index', metavar='BUCKET')
 
-ap.add_argument(
-    '-p',
-    '--prefix',
-    help='Bucket object prefix (default: /)',
-    metavar='DIR',
-    default='',
-    dest='prefix')
+ap.add_argument('-p',
+                '--prefix',
+                help='Bucket object prefix (default: /)',
+                metavar='DIR',
+                default='',
+                dest='prefix')
 
 ap.add_argument(
     '-k',
@@ -58,27 +59,24 @@ ap.add_argument(
     default='gcs',
     dest='cloud_storage')
 
-ap.add_argument(
-    '-r',
-    '--recursive',
-    help='Recursively include "subdirectories" and their objects',
-    action='store_true',
-    dest='recursive')
+ap.add_argument('-r',
+                '--recursive',
+                help='Recursively include "subdirectories" and their objects',
+                action='store_true',
+                dest='recursive')
 
-ap.add_argument(
-    '-x',
-    '--exclude',
-    help='Files (masks) to exclude (default: index.html)',
-    metavar='FILE',
-    default='index.html',
-    dest='exclude')
+ap.add_argument('-x',
+                '--exclude',
+                help='Files (masks) to exclude (default: index.html)',
+                metavar='FILE',
+                default='index.html',
+                dest='exclude')
 
-ap.add_argument(
-    '-c',
-    '--checksums',
-    help='Get checksums from md5sums, sha1sums and sha256sums',
-    action='store_true',
-    dest='checksums')
+ap.add_argument('-c',
+                '--checksums',
+                help='Get checksums from md5sums, sha1sums and sha256sums',
+                action='store_true',
+                dest='checksums')
 
 ap.add_argument(
     '-M',
@@ -88,27 +86,24 @@ ap.add_argument(
     action='append',
     metavar='FILE:field')
 
-ap.add_argument(
-    '-E',
-    '--exclude-fancyindex',
-    help='Exclude /fancyindex directory',
-    action='store_true',
-    dest='exclude_fancyindex')
+ap.add_argument('-E',
+                '--exclude-fancyindex',
+                help='Exclude /fancyindex directory',
+                action='store_true',
+                dest='exclude_fancyindex')
 
-ap.add_argument(
-    '-P',
-    '--pretty-print',
-    help='Print pretty JSON (default: no formatting)',
-    action='store_true',
-    dest='pretty_print')
+ap.add_argument('-P',
+                '--pretty-print',
+                help='Print pretty JSON (default: no formatting)',
+                action='store_true',
+                dest='pretty_print')
 
-ap.add_argument(
-    '-T',
-    '--time-format',
-    help='Time format (default: %%Y-%%b-%%d %%H:%%M)',
-    metavar='DIR',
-    default='%Y-%b-%d %H:%M',
-    dest='time_format')
+ap.add_argument('-T',
+                '--time-format',
+                help='Time format (default: %%Y-%%b-%%d %%H:%%M)',
+                metavar='DIR',
+                default='%Y-%b-%d %H:%M',
+                dest='time_format')
 
 a = ap.parse_args()
 
@@ -162,8 +157,8 @@ def get_blob(o):
     if cloud_storage == 'gcs':
         return o.download_as_string().decode()
     elif cloud_storage == 's3':
-        return client.get_object(
-            Key=o['Key'], Bucket=bucket)['Body'].read().decode()
+        return client.get_object(Key=o['Key'],
+                                 Bucket=bucket)['Body'].read().decode()
     else:
         return None
 
@@ -271,12 +266,11 @@ elif cloud_storage == 's3':
     import boto3
     key = json.load(open(a.keyfile))
     session = boto3.session.Session()
-    client = session.client(
-        's3',
-        region_name=key.get('region_name'),
-        endpoint_url=key.get('endpoint_url'),
-        aws_access_key_id=key['aws_access_key_id'],
-        aws_secret_access_key=key['aws_secret_access_key'])
+    client = session.client('s3',
+                            region_name=key.get('region_name'),
+                            endpoint_url=key.get('endpoint_url'),
+                            aws_access_key_id=key['aws_access_key_id'],
+                            aws_secret_access_key=key['aws_secret_access_key'])
     try:
         objects = client.list_objects(Bucket=bucket, Prefix=prefix)['Contents']
     except KeyError:
@@ -295,6 +289,12 @@ def format_object(o, cs):
         else:
             value = getattr(o, v)
         setattr(out, k, value)
+    if cs == 'gcs':
+        meta = o.metadata
+        if meta:
+            if 'local-creation-time' in meta:
+                out.date = parse_date(meta['local-creation-time'],
+                                      return_timestamp=False)
     return out
 
 
@@ -315,15 +315,17 @@ for obj in objects:
             break
     if skip: continue
     if len(n) == 1:
-        # we have a file in root
         append_file(n[-1], o.size, o.date)
     else:
         # we have a file in a "folder"
         foldername = '/'.join(n[:-1])
         if not recursive and prefix != foldername:
             append_folder(n[0])
-            append_file(
-                n[-1], o.size, o.date, '/'.join(n[:-1]), update_info_only=True)
+            append_file(n[-1],
+                        o.size,
+                        o.date,
+                        '/'.join(n[:-1]),
+                        update_info_only=True)
             continue
         append_folder(foldername)
         append_file(n[-1], o.size, o.date, '/'.join(n[:-1]))
