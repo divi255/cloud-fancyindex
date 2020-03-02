@@ -184,7 +184,7 @@ def apply_metainfo_file(o, filename, foldername, ctype):
     folder_info.setdefault(key, {})[ctype] = sums
 
 
-def append_file(name, size, d=None, folder='', update_info_only=False):
+def append_file(name, size, d=None, folder='', meta={}, update_info_only=False):
     key = (('/' + prefix + ('/' if folder else '')) if prefix else '/') + folder
     if not update_info_only:
         file_info = {
@@ -193,15 +193,17 @@ def append_file(name, size, d=None, folder='', update_info_only=False):
             'size': size,
             'date': (d.strftime(time_format) if d else None)
         }
+        file_info.update(meta)
         if metainfo:
             for c in metainfo:
-                file_info[c] = None
+                if c not in file_info:
+                    file_info[c] = None
             i = folder_info.get(key)
             if i:
                 for c in metainfo:
                     sums = i.get(c)
-                    if sums:
-                        file_info[c] = sums.get(name)
+                    if sums and name in sums:
+                        file_info[c] = sums[name]
 
         structure.setdefault(key, []).append(file_info)
     if d and key != '/': update_folder_info(key, d, size)
@@ -290,11 +292,12 @@ def format_object(o, cs):
             value = getattr(o, v)
         setattr(out, k, value)
     if cs == 'gcs':
-        meta = o.metadata
-        if meta:
-            if 'local-creation-time' in meta:
-                out.date = parse_date(meta['local-creation-time'],
+        out.meta = o.metadata if o.metadata else {}
+        if out.meta:
+            if 'local-creation-time' in out.meta:
+                out.date = parse_date(out.meta['local-creation-time'],
                                       return_timestamp=False)
+                del out.meta['local-creation-time']
     return out
 
 
@@ -315,7 +318,7 @@ for obj in objects:
             break
     if skip: continue
     if len(n) == 1:
-        append_file(n[-1], o.size, o.date)
+        append_file(n[-1], o.size, o.date, meta=o.meta)
     else:
         # we have a file in a "folder"
         foldername = '/'.join(n[:-1])
@@ -325,10 +328,11 @@ for obj in objects:
                         o.size,
                         o.date,
                         '/'.join(n[:-1]),
+                        meta=o.meta,
                         update_info_only=True)
             continue
         append_folder(foldername)
-        append_file(n[-1], o.size, o.date, '/'.join(n[:-1]))
+        append_file(n[-1], o.size, o.date, '/'.join(n[:-1]), meta=o.meta)
 
 if pretty_print:
     print(json.dumps(structure, indent=4, sort_keys=True))
