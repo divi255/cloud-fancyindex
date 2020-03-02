@@ -1,3 +1,8 @@
-_build
-key.json
+__pycache__
+cloud_fancyindex.egg-info
+build
+dist
 Makefile
+TODO.todo
+*.pyc
+_build

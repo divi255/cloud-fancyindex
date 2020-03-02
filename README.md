@@ -3,8 +3,8 @@ Cloud FancyIndex
 
 I like NGINX fancyindex module
 (https://www.nginx.com/resources/wiki/modules/fancy_index/). With a good theme
-it can make your auto-indexed file trash look like solid SP500 companys' website
-with a few directives in webserver config.
+it can make your auto-indexed file trash look like solid SP500 company's Website
+with a few directives in web server config.
 
 But future is coming and we are moving to cloud storages.
 
@@ -19,104 +19,54 @@ static indexes! And let's add fancyindex themes for them!
 Uploading
 ---------
 
-* To upload files to Google Clound Storage, you need to be logged in with local
+* To upload files to Google Cloud Storage, you need to be logged in with local
   *gcloud* app. cs-index-upload.sh actually calls *gsutil rsync*
 
 * To upload to Amazon S3 or compatible, install and configure *s3cmd*
 
-Security
---------
-
-* To let the software index your bucket, you need to create GCP servece account
-  (permissions worked for me: Storage Legacy Bucket Reader & Storage Object
-  Viewer) and then create a key for it. Put a path to keyfile to
-  GOOGLE_APPLICATION_CREDENTIALS env variable or specify it in application
-  command line params.
-
-* For Amazon S3 JSON key is also required. Amazon doesn't supply JSON keys,
-  create it manually:
-
-    {
-        "aws_access_key_id": "KEYID",
-        "aws_secret_access_key": "SECRETKEY"
-    }
-
-* Additionally, for S3 you can specify in JSON fields *region_name* and
-  *endpoint_url*, e.g. to connect to Digital Ocean Spaces:
-
-    {
-        "aws_access_key_id": "KEYID",
-        "aws_secret_access_key": "SECRETKEY",
-        "region_name": "nyc3",
-        "endpoint_url": "https://nyc3.digitaloceanspaces.com"
-    }
-    
-* Don't forget to set 600 permission on all key files you have.
-
 Installation
 ------------
 
-* Copy Makefile.default to Makefile and feel free to edit it. Set bucket,
-  prefix, cloud storage (*cs=gcs* for Google (default), *cs=s3* for Amazon S3)
-  and etc.
+```
+pip3 install cloud-fancyindex
+```
 
-* Mods required: jinja2, argparse, google.cloud.storage (for GCS), boto3
-  (for S3). Install them or just run *sudo make install-modules*
+You also need to install [cloudindex](https://github.com/divi255/cloudindex)
+package as well.
 
 Usage
 -----
 
-* cs-indexer.py - indexes bucket and creates JSON file (by default - prints
-  everyting to stdout). To start, specify at least key file and bucket name.
-  Note: option "-r" will index bucket recursively, but because bucket objects
-  are not real files and folders, actually API always returns all objects below
-  the given prefix. You just can choose include them to index or not.
+* cloud-fancyindex-generator CLI tool - generates index.html files (by default
+  in ./\_build/html )
 
-* fancyindex-generator.py - generates index.html files (by default - in
-  _build/html). One theme is already included (created by [TheInsomniac] -
-  https://github.com/TheInsomniac/Nginx-Fancyindex-Theme). Actually it's
+* You must also download some fancy index theme, e.g.
+  https://github.com/TheInsomniac/Nginx-Fancyindex-Theme. Actually it's
   compatible with almost all themes you can find or create.
 
-Note: theme is placed in /fancyindex directory. In case theme loads any stuff
-(css/js etc.) from other directory, correct paths in its header / footer.
+Note: theme is placed in /fancyindex bucket directory. In case theme loads any
+stuff (css/js etc.) from other directory, correct paths in its header / footer.
 
-* cs-index-upload.sh - uploads output directory to cloud storage
+* You may download also my cs-index-upload.sh script - uploads output directory
+  to cloud storage
 
 * tpl.html - template file for the primary table. This is jinja2 template so
-  you can use all functions it has.
+  you can use all functions it has. Example: https://github.com/divi255/cloud-fancyindex/blob/master/tpl.html
 
-* sha256.tpl.html - template example with sha256 checksums.
+* sha256.tpl.html - template example with sha256 checksums. Example: https://github.com/divi255/cloud-fancyindex/blob/master/sha256.tpl.html
+
+* template can include any additional object meta data.
 
 * docker-compose.yml - just a test stuff, ignore it
-
-With make:
-
-* make clean - clean _build/html (don't set out to empty as it will erase
-  your entire root)
-
-* make index - generate JSON index (to stdout)
-
-* make html - generate JSON index and then make html files from it
-
-* make pub - generate, make, upload to Cloud
 
 Note: you need to rebuild index (at least partial one) every time you upload new
 file to bucket. Sad, but true.
 
-Option "-M" allows to include custom meta info, e.g. you can display
-fingerprints of SSL certificates hosted in bucket if this data is stored (as
-"FINGERPRINT FILENAME", one per line) in "FINGERPRINTS" (case insensitive)
-file:
+Example:
 
-    ./cs-indexer.py ..... -M FINGERPRINTS:fingerprint <BUCKET>
-
-If option "-c" is given to indexer, additional file attributes "md5", "sha1"
-and "sha256" appear. Indexer will update them if files "md5sums", "sha1sums" or
-"sha256sums" (case doesn't matter) are present in current directory. File
-format is standard: "CHECKSUM  FILENAME" (one per line). This option is
-actually equal to
-
-    ./cs-indexer.py ..... -M sha256sums:sha256 -M md5sums:md5 -M sha1sums:sha1
+```
+cloud-index [options] <bucket> | cloud-fancyindex-generator -t <template> -F <themepath> -D <output>
+```
 
 Usage in real life
 ------------------
@@ -137,15 +87,5 @@ Nuts and bolts
 * But a bonus - now you can easily display sizes of folders (or directories (or
   bucket paths (etc)))
 
-* As buckets don't have real folders, sometimes it can't get a proper
-  modification date or calculate folder size. Sorry for that.
-
 * S3 actually has real "folders" (at least emulates them), so index generation
   can be more optimal. But then we'll lose unification.
-
-
-TODO
-----
-
-* Working with Digital Ocean Spaces is untested. Will test it some time later.
-
