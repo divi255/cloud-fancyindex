@@ -1,23 +1,22 @@
 bucket=my.coolbucket.com
 prefix=/
-exclude="index.html|404.html|favicon.ico|*.bak"
 theme=fancyindex.TheInsomniac
 key=key.json
 out=_build/html
 cs=gcs
 tpl=tpl.html
-index_opts=
+index_opts=-x index.html -x 404.html -x favicon.ico -x /fancyindex/*
 
 all:
 	@echo "what do you want to do today?"
 
 index:
-	@python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r $(bucket) \
+	cloud-index ${index_opts} -s ${cs} -r $(bucket) \
   	 	-p $(prefix) -k $(key)
 
 html:
-	python3 cs-indexer.py ${index_opts} -s ${cs} -x $(exclude) -E -r $(bucket) \
-  	 	-p $(prefix) -k $(key) | python3 fancyindex-generator.py -t $(tpl) -F $(theme) -D $(out)
+	cloud-index ${index_opts} -s ${cs} -r $(bucket) \
+  	 	-p $(prefix) -k $(key) | cloud-fancyindex-generator -t $(tpl) -F $(theme) -D $(out)
 
 clean:
 	rm -rf $(out)/*
@@ -26,9 +25,6 @@ upload:
 	./cs-index-upload.sh $(cs) $(out) $(bucket)
 
 pub: clean html upload
-
-install-modules:
-	pip3 install jinja2 argparse google.cloud.storage
 
 test:
 	docker-compose up -d
